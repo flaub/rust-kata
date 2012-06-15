@@ -7,26 +7,33 @@ fn find(v: int, array: [int]) -> int {
 	ret -1;
 }
 
+enum compare {
+	lt,
+	gt,
+	eq
+}
+
+fn compare<T>(a: T, b: T) -> compare {
+	if a < b { lt }
+	else if a > b { gt }
+	else { eq }
+}
+
 fn _chop(value: int, array: [int], begin: uint, end: uint) -> int {
 	let len = end - begin;
-	if len == 0u {
-		ret -1;
-	}
-	else if len == 1u {
-		if array[begin] == value {
-			ret begin as int;
+	alt len {
+		0u { ret -1; }
+		1u if array[begin] == value { ret begin as int; }
+		1u { ret -1; }
+		_ {
+			let half = begin + len / 2u;
+			alt compare(value, array[half]) {
+				lt { ret _chop(value, array, begin, half); }
+				gt { ret _chop(value, array, half, end); }
+				eq { ret half as int; }
+			}
 		}
-		ret -1;
 	}
-
-	let half = begin + len / 2u;
-	if value < array[half] {
-		ret _chop(value, array, begin, half)
-	}
-	else if value > array[half] {
-		ret _chop(value, array, half, end)
-	}
-	ret half as int;
 }
 
 fn chop(value: int, array: [int]) -> int {
