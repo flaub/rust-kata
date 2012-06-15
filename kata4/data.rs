@@ -3,7 +3,7 @@ use std;
 import io::reader_util;
 
 impl reader_ext for io::reader {
-	fn each_linei(it: fn(uint, str) -> bool) {
+	fn eachi_line(it: fn(uint, str) -> bool) {
 		let mut i: uint = 0u;
 		while !self.eof() {
 			if !it(i, self.read_line()) { break; }
@@ -25,7 +25,7 @@ fn parse_weather(line_begin: uint, line_end: uint) {
 	let mut min_delta = int::max_value;
 	let mut min_day = 0u;
 
-	for fin.each_linei {|i, line|
+	for fin.eachi_line {|i, line|
 		if i >= line_begin && i <= line_end {
 			// io::println(#fmt("%u: %s", i, line));
 			let columns = str::words(line);
