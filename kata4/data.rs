@@ -13,10 +13,8 @@ impl reader_ext for io::reader {
 }
 
 fn parse_temperature(s: str) -> int {
-	if str::ends_with(s, "*") {
-		ret parse_temperature(str::split_char(s, '*')[0]);
-	}
-	ret int::from_str(s).get();
+	let digits = copy(str::split_char(s, '*')[0]);
+	ret int::from_str(digits).get();
 }
 
 fn parse_weather(line_begin: uint, line_end: uint) {
