@@ -3,7 +3,7 @@ use std;
 import io::reader_util;
 
 impl reader_ext for io::reader {
-    fn each_linei(it: fn(uint, str) -> bool) {
+	fn each_linei(it: fn(uint, str) -> bool) {
 		let mut i: uint = 0u;
 		while !self.eof() {
 			if !it(i, self.read_line()) { break; }
