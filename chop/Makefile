@@ -1,9 +1,9 @@
 all:
-	python build.py
+	@python build.py
 	
 test:
-	python build.py test
-	bin/test_chop1
+	@python build.py test
+	@bin/test_chop1
 	
 clean:
-	python build.py clean
+	@python build.py clean
