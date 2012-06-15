@@ -3,7 +3,7 @@ all:
 	
 test:
 	@python build.py test
-	@bin/test_chop1
+	@bin/test
 	
 clean:
 	@python build.py clean

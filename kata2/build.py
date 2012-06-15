@@ -8,11 +8,11 @@ def init():
 
 def build():
 	init()
-	run('rustc', 'chop1.rs', '-o', 'bin/chop1')
+	run('rustc', 'chop.rs', '-o', 'bin/chop')
 
 def test():
 	init()
-	run('rustc', 'chop1.rs', '--test', '-o', 'bin/test_chop1')
+	run('rustc', 'chop.rs', '-o', 'bin/test', '--test')
 	
 def clean():
 	autoclean()
