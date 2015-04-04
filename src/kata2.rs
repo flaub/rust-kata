@@ -1,24 +1,8 @@
-use std::cmp::Ordering;
-
-fn binary_search(value: i32, slice: &[i32], begin: usize, end: usize) -> i32 {
-	let len = end - begin;
-	match len {
-		0 => -1,
-		1 if slice[begin] == value => begin as i32,
-		1 => -1,
-		_ => {
-			let half = begin + len / 2;
-			match value.cmp(&slice[half]) {
-				Ordering::Less    => binary_search(value, slice, begin, half),
-				Ordering::Greater => binary_search(value, slice, half, end),
-				Ordering::Equal   => half as i32
-			}
-		}
+pub fn chop(x: i32, slice: &[i32]) -> i32 {
+	match slice.binary_search(&x) {
+		Ok(ix) => ix as i32,
+		Err(_) => -1
 	}
-}
-
-pub fn chop(value: i32, slice: &[i32]) -> i32 {
-	binary_search(value, slice, 0, slice.len())
 }
 
 #[cfg(test)]
