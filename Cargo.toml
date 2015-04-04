@@ -1,0 +1,4 @@
+[package]
+name = "kata"
+version = "0.0.1"
+authors = ["Frank Laub <frank.laub@gmail.com>"]
