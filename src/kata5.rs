@@ -5,7 +5,7 @@ use std::hash::Hash;
 use std::hash::Hasher;
 use std::marker;
 
-pub struct BloomFilter<H: Hasher + Default> {
+pub struct BloomFilter<H> {
 	bitmap: BitVec,
 	nhashes: usize,
 	hasher: marker::PhantomData<H>,
@@ -31,8 +31,9 @@ impl<H: Hasher + Default> BloomFilter<H> {
 	}
 
 	pub fn get<T: Hash>(&self, key: &T) -> bool {
+		let digest = self.compute_digest(key);
 		for i in (0..self.nhashes) {
-			let ix = self.compute_index(i, key);
+			let ix = self.compute_index(i, digest);
 			if !self.bitmap.get(ix).unwrap() {
 				return false;
 			}
@@ -41,17 +42,21 @@ impl<H: Hasher + Default> BloomFilter<H> {
 	}
 
 	pub fn set<T: Hash>(&mut self, key: &T) {
+		let digest = self.compute_digest(key);
 		for i in (0..self.nhashes) {
-			let ix = self.compute_index(i, key);
+			let ix = self.compute_index(i, digest);
 			self.bitmap.set(ix, true);
 		}
 	}
 
-	// see: https://willwhim.wpengine.com/2011/09/03/producing-n-hash-functions-by-hashing-only-once/
-	fn compute_index<T: Hash>(&self, i: usize, key: &T) -> usize {
+	fn compute_digest<T: Hash>(&self, key: &T) -> u64 {
 		let mut h: H = Default::default();
 		key.hash(&mut h);
-		let digest = h.finish();
+		return h.finish();
+	}
+
+	// see: https://willwhim.wpengine.com/2011/09/03/producing-n-hash-functions-by-hashing-only-once/
+	fn compute_index(&self, i: usize, digest: u64) -> usize {
 		let a = digest & u32::max_value() as u64;
 		let b = digest >> 32;
 		let x = a + b * (i as u64);
