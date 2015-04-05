@@ -3,3 +3,5 @@
 
 mod kata2;
 mod kata4;
+mod kata5;
+pub mod bitvec;
