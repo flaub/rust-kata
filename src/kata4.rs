@@ -3,8 +3,11 @@ use std::io::{BufRead, BufReader};
 use std::iter::Filter;
 use std::str::Split;
 
+type FnIsWhitespace = fn(char) -> bool;
+type FnIsNotEmpty = fn(&&str) -> bool;
+
 struct Words<'a> {
-	inner: Filter<Split<'a, fn(char) -> bool>, fn(&&str) -> bool>,
+	inner: Filter<Split<'a, FnIsWhitespace>, FnIsNotEmpty>,
 }
 
 impl<'a> Iterator for Words<'a> {
@@ -15,38 +18,17 @@ impl<'a> Iterator for Words<'a> {
 
 fn words(s: &str) -> Words {
 	fn is_not_empty(s: &&str) -> bool { !s.is_empty() }
-	let is_not_empty: fn(&&str) -> bool = is_not_empty;
-
 	fn is_whitespace(c: char) -> bool { c.is_whitespace() }
-	let is_whitespace: fn(char) -> bool = is_whitespace;
 
-	Words { inner: s.split(is_whitespace).filter(is_not_empty) }
-}
-
-fn parse_temperature(s: &str) -> i32 {
-	s.trim_right_matches("*").parse::<i32>().unwrap()
-}
-
-struct Data<T> {
-	key: T,
-	value1: i32,
-	value2: i32,
-}
-
-struct Accumulator<T> {
-	key: T,
-	value: i32,
-}
-
-fn min_delta<K>(acc: Accumulator<K>, item: Data<K>) -> Accumulator<K> {
-	let delta = (item.value1 - item.value2).abs();
-	if delta < acc.value { 
-		Accumulator { key: item.key, value: delta }
-	}
-	else { 
-		acc
+	Words { 
+		inner: s
+			.split(is_whitespace as FnIsWhitespace)
+			.filter(is_not_empty) 
 	}
 }
+
+struct Data<K> (K, i32, i32);
+struct Fold<K> (K, i32);
 
 fn parse_file<K, F>(filename: &str, default: K, pluck: F) -> (K, i32) 
 	where F : Fn(Vec<&str>) -> Option<Data<K>> {
@@ -55,15 +37,23 @@ fn parse_file<K, F>(filename: &str, default: K, pluck: F) -> (K, i32)
 	let reader = BufReader::new(fin);
 	let lines = reader.lines();
 
-	let init = Accumulator { key: default, value: i32::max_value() };
+	let init = Fold(default, i32::max_value());
 
-	let result = lines.filter_map(|x| {
+	let Fold(key, value) = lines.filter_map(|x| {
 		let line = x.unwrap();
 		let columns = words(&line).collect::<Vec<&str>>();
 		pluck(columns)
-	}).fold(init, min_delta);
+	}).fold(init, |state, item| {
+		let delta = (item.1 - item.2).abs();
+		if delta < state.1 { 
+			Fold(item.0, delta)
+		}
+		else { 
+			state
+		}
+	});
 
-	return (result.key, result.value);
+	return (key, value);
 }
 
 pub fn parse_weather() -> (i32, i32) {
@@ -76,12 +66,12 @@ pub fn parse_weather() -> (i32, i32) {
 			Ok(n) => n,
 			Err(_) => return None
 		};
+		
+		fn trim(s: &str) -> i32 {
+			s.trim_right_matches("*").parse::<i32>().unwrap()
+		}
 
-		return Some(Data {
-			key: day,
-			value1: parse_temperature(columns[1]),
-			value2: parse_temperature(columns[2]),
-		});
+		return Some(Data(day, trim(columns[1]), trim(columns[2])));
 	})
 }
 
@@ -91,11 +81,11 @@ pub fn parse_football() -> (String, i32) {
 			return None;
 		}
 
-		return Some(Data {
-			key: columns[1].to_string(),
-			value1: columns[6].parse::<i32>().unwrap(),
-			value2: columns[8].parse::<i32>().unwrap(),
-		});
+		return Some(Data(
+			columns[1].to_string(), 
+			columns[6].parse::<i32>().unwrap(), 
+			columns[8].parse::<i32>().unwrap(),
+		));
 	})
 }
 
