@@ -122,7 +122,7 @@ mod test {
 	}
 
 	#[test]
-	fn test_words() {
+	fn test_bloom_filter() {
 		let capacity = 50000;
 		let error_rate = 0.05;
 		let mut bf = BloomFilter::<SipHasher>::new(capacity, error_rate);

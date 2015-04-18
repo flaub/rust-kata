@@ -1,4 +1,4 @@
-.PHONY: all test watch
+.PHONY: all test watch clean
 
 all:
 	cargo build
@@ -13,3 +13,6 @@ test:
 
 watch:
 	ls src/*.rs | entr make test
+
+clean:
+	cargo clean

@@ -33,9 +33,10 @@ fn trim(s: &str) -> &str {
 
 macro_rules! parse {
 	($src:ident, $ix:expr) => (
-		match $src.len() < $ix + 1 {
-			true => return None,
-			false => match FromStr::from_str(trim($src[$ix])) {
+		if $src.len() < $ix + 1 {
+			return None
+		} else {
+			match FromStr::from_str(trim($src[$ix])) {
 				Ok(val) => val,
 				Err(_)  => return None
 			}
