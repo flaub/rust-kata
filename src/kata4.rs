@@ -1,34 +1,16 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::iter::Filter;
 use std::str::FromStr;
-use std::str::Split;
-
-type FnIsWhitespace = fn(char) -> bool;
-type FnIsNotEmpty = fn(&&str) -> bool;
-
-struct Words<'a> {
-	inner: Filter<Split<'a, FnIsWhitespace>, FnIsNotEmpty>,
-}
-
-impl<'a> Iterator for Words<'a> {
-	type Item = &'a str;
-
-	fn next(&mut self) -> Option<&'a str> { self.inner.next() }
-}
-
-fn words(s: &str) -> Words {
-	fn is_not_empty(s: &&str) -> bool { !s.is_empty() }
-	fn is_whitespace(c: char) -> bool { c.is_whitespace() }
-
-	Words { inner: s.split(is_whitespace as FnIsWhitespace).filter(is_not_empty) }
-}
 
 struct Data<K> (K, i32, i32);
 struct Fold<K> (K, i32);
 
 fn trim(s: &str) -> &str {
 	s.trim_right_matches("*")
+}
+
+fn words(s: &str) -> Vec<&str> {
+	s.split(char::is_whitespace).filter(|s| !s.is_empty()).collect()
 }
 
 macro_rules! parse {
@@ -55,7 +37,7 @@ fn parse_file<K>(filename: &str, default: K, ixs: [usize; 3]) -> (K, i32)
 
 	let Fold(key, value) = lines.filter_map(|x| {
 		let line = x.unwrap();
-		let columns = words(&line).collect::<Vec<&str>>();
+		let columns = words(&line);
 
 		let key = parse!(columns, ixs[0]);
 		let v1 = parse!(columns, ixs[1]);

@@ -15,10 +15,10 @@ fn find_anagrams<T, I>(words: T) -> usize
 	let mut anagrams = HashMap::<String, Vec<String>>::new();
 
 	for word in words {
-		let key = fingerprint(word.as_ref());
-		anagrams.entry(key)
+		let word_ref = word.as_ref();
+		anagrams.entry(fingerprint(word_ref))
 			.or_insert(vec![])
-			.push(word.as_ref().to_string());
+			.push(word_ref.to_string());
 	}
 
 	anagrams.values()
