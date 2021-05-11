@@ -1,4 +1,4 @@
-use bitvec::BitVec;
+use crate::bitvec::BitVec;
 use std::default::Default;
 use std::f32::consts::LN_2;
 use std::hash::Hash;
